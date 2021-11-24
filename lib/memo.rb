@@ -21,6 +21,12 @@ class Memo < Post
     @text.pop
   end
 
+  def to_strings
+    time_string = "Создано: #{@created_at.strftime('%Y.%m.%d, %H:%M:%S')}\n"
+
+    @text.unshift(time_string)
+  end
+
   def save
     # Откроем файл для записи в режиме записи (write)
     # Файл не существует и будет создан
@@ -45,5 +51,22 @@ class Memo < Post
 
     # Напишем пользователю, что запись добавлена
     puts "Ваша запись сохранена"
+  end
+
+  def to_db_hash
+    # вызываем родительский метод ключевым словом super и к хэшу, который он вернул
+    # присоединяем прицепом специфичные для этого класса поля методом Hash#merge
+    super.merge(
+      {
+        'text' => @text.join('\n\r') # массив строк делаем одной большой строкой, разделенной символами перевода строки
+      }
+    )
+  end
+
+  def load_data(data_hash)
+    super(data_hash) # сперва дергаем родительский метод для общих полей
+
+    # теперь прописываем свое специфичное поле
+    @text = data_hash['text'].split('\n\r')
   end
 end
