@@ -13,9 +13,9 @@ require_relative "#{__dir__}/lib/link.rb"
 require_relative "#{__dir__}/lib/task.rb"
 require 'optparse'
 
-# Все наши опции будут записаны сюда
+# Все опции
 options = {}
-# заведем нужные нам опции
+
 OptionParser.new do |opt|
   opt.banner = 'Usage: read.rb [options]'
 
@@ -30,33 +30,32 @@ OptionParser.new do |opt|
 
 end.parse!
 
-result = Post.find(options[:limit], options[:type], options[:id])
-p result
+result = {
+  limit: options[:limit],
+  type: options[:type],
+  id: options[:id]
+}
 
-if result.is_a? Post # показываем конкретный пост
-  puts "Запись #{result.class.name}, id = #{options[:id]}"
-  # выведем весь пост на экран и закроемся
-  result.to_strings.each do |line|
+if !result[:id].nil?
+  post = Post.find_by_id(result[:id])
+  puts "Запись #{post.class.name}, id = #{options[:id]}"
+
+  post.to_strings.each do |line|
     puts line
   end
 
-else # показываем таблицу результатов
-
+else
+  result = Post.find_all(options[:limit], options[:type])
   print "| id\t| @type\t|  @created_at\t\t\t|  @text \t\t\t| @url\t\t| @due_date \t "
 
-  # Используем safe навигацию, учитывая возможное значение nil для result
   result&.each do |row|
     puts
-    # puts '_'*80
+
     row.each do |element|
       print "|  #{element.to_s.delete("\\n\\r")[0..40]}\t"
     end
+
   end
 end
 
 puts
-
-# Фигурные скобки {...} после вызова метода в простых случаях аналогичны конструкции do ... end
-# Они ограничивают блок кода который будет выполняться этим методом
-#
-# см. http://stackoverflow.com/questions/5587264/do-end-vs-curly-braces-for-blocks-in-ruby
