@@ -34,6 +34,11 @@ end
 
 entry = Post.create(choices[choice])
 entry.read_from_console
-rowid = entry.save_to_db
+begin
+  rowid = entry.save_to_db
+  puts "Запись сохранена в базе, id = #{rowid}"
+rescue
+  puts "Пропала база данных"
+end
 
-puts "Запись сохранена в базе, id = #{rowid}"
+
