@@ -13,9 +13,7 @@ require_relative "#{__dir__}/lib/link.rb"
 require_relative "#{__dir__}/lib/task.rb"
 require 'optparse'
 
-# Все опции
 options = {}
-
 OptionParser.new do |opt|
   opt.banner = 'Usage: read.rb [options]'
 
@@ -30,22 +28,18 @@ OptionParser.new do |opt|
 
 end.parse!
 
-result = {
-  limit: options[:limit],
-  type: options[:type],
-  id: options[:id]
-}
+result = Post.find(options[:limit], options[:type], options[:id])
+p result
 
-if !result[:id].nil?
-  post = Post.find_by_id(result[:id])
-  puts "Запись #{post.class.name}, id = #{options[:id]}"
+if result.is_a? Post
+  puts "Запись #{result.class.name}, id = #{options[:id]}"
 
-  post.to_strings.each do |line|
+  result.to_strings.each do |line|
     puts line
   end
 
-else
-  result = Post.find_all(options[:limit], options[:type])
+else # показываем таблицу результатов
+
   print "| id\t| @type\t|  @created_at\t\t\t|  @text \t\t\t| @url\t\t| @due_date \t "
 
   result&.each do |row|
@@ -54,7 +48,6 @@ else
     row.each do |element|
       print "|  #{element.to_s.delete("\\n\\r")[0..40]}\t"
     end
-
   end
 end
 
